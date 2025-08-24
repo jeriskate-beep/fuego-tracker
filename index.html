@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuego Hike Training Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.24.7/babel.min.js"></script>
+    <style>
+        /* Embedded Tailwind-like styles (subset for app needs, minified) */
+        body{font-family:Arial,sans-serif;background-color:#f3f4f6}.container{max-width:1024px;margin-left:auto;margin-right:auto;padding:1rem}.text-2xl{font-size:1.5rem;line-height:2rem}.font-bold{font-weight:700}.text-center{text-align:center}.mb-4{margin-bottom:1rem}.flex{display:flex}.justify-between{justify-content:space-between}.px-2{padding-left:0.5rem;padding-right:0.5rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.rounded{border-radius:0.25rem}.bg-blue-500{background-color:#3b82f6}.text-white{color:#fff}.bg-gray-200{background-color:#e5e7eb}.space-y-4 > * + *{margin-top:1rem}.bg-white{background-color:#fff}.p-4{padding:1rem}.shadow{box-shadow:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24)}.text-xl{font-size:1.25rem;line-height:1.75rem}.font-semibold{font-weight:600}.mb-2{margin-bottom:0.5rem}.font-medium{font-weight:500}.list-disc{list-style-type:disc}.pl-5{padding-left:1.25rem}.flex{display:flex}.items-center{align-items:center}.mr-2{margin-right:0.5rem}.w-full{width:100%}.border{border-width:1px;border-color:#d1d5db}.p-2{padding:0.5rem}
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root" class="container mx-auto p-4"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Training plan data (10 weeks, starting Aug 25, 2025)
+        const trainingPlan = [
+            // Week 1 (Aug 25-31)
+            [
+                { day: "Mon, Aug 25", workouts: ["Hotworx HIIT (30 min, no pack)", "Ankle: Resistance band dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "15 min stretching, ice ankles" },
+                { day: "Tue, Aug 26", workouts: ["Rock Climbing (60 min, 5.10a, 3-4 routes, no pack)", "Ankle: Single-leg stands (3x30 sec/side)"], nutrition: "Chicken salad (40g)", recovery: "Foam roll calves" },
+                { day: "Wed, Aug 27", workouts: ["Stair climber (30 min) or bridge repeats (20 min)", "Ankle: Calf raises (3x15, slow)"], nutrition: "Greek yogurt + nuts (20g)", recovery: "Light walk, hydrate" },
+                { day: "Thu, Aug 28", workouts: ["Hotworx Cycle (30 min, low resistance)", "Hot Yoga (30 min)", "Ankle: Heel walks/toe raises (3x15)"], nutrition: "Salmon with rice (35g)", recovery: "Deep breathing in yoga" },
+                { day: "Fri, Aug 29", workouts: ["Rest or Hotworx yoga (30 min, light)"], nutrition: "Protein shake (25g)", recovery: "Full rest, early bedtime" },
+                { day: "Sat, Aug 30", workouts: ["Hike (5 miles, Turkey Creek, 10 lb pack)", "Ankle: Band eversion (3x15/side)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch hips/calves" },
+                { day: "Sun, Aug 31", workouts: ["Rock Climbing (60 min, 4 routes)", "Ankle: Single-leg squats (3x10/side)"], nutrition: "Eggs with veggies (30g)", recovery: "Ice ankles, journal" }
+            ],
+            // Week 2 (Sep 1-7)
+            [
+                { day: "Mon, Sep 1", workouts: ["Hotworx HIIT (35 min, 5 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Sep 2", workouts: ["Rock Climbing (75 min, 5.10a, 4 routes, 5 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken stir-fry (40g)", recovery: "Foam roll" },
+                { day: "Wed, Sep 3", workouts: ["Stair climber (35 min) or bridge repeats (25 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + fruit (20g)", recovery: "Hydrate" },
+                { day: "Thu, Sep 4", workouts: ["Hotworx Cycle (35 min, moderate resistance)", "Hot Yoga (30 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon quinoa (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Sep 5", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Sep 6", workouts: ["Hike (6 miles, Wickham Park, 12 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Protein bar + banana (25g)", recovery: "Stretch" },
+                { day: "Sun, Sep 7", workouts: ["Rock Climbing (75 min, 4-5 routes)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 3 (Sep 8-14)
+            [
+                { day: "Mon, Sep 8", workouts: ["Hotworx HIIT (40 min, 7 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Sep 9", workouts: ["Rock Climbing (80 min, 5.10a, 4-5 routes, 7 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken salad (40g)", recovery: "Foam roll" },
+                { day: "Wed, Sep 10", workouts: ["Stair climber (40 min) or bridge repeats (30 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + nuts (20g)", recovery: "Hydrate" },
+                { day: "Thu, Sep 11", workouts: ["Hotworx Cycle (40 min, moderate resistance)", "Hot Yoga (30 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon rice (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Sep 12", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Sep 13", workouts: ["Hike (6-7 miles, Ocala, 14 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch" },
+                { day: "Sun, Sep 14", workouts: ["Rock Climbing (80 min, 5 routes)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 4 (Sep 15-21)
+            [
+                { day: "Mon, Sep 15", workouts: ["Hotworx HIIT (45 min, 10 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Sep 16", workouts: ["Rock Climbing (90 min, 5.10a, 5 routes, 10 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken stir-fry (40g)", recovery: "Foam roll" },
+                { day: "Wed, Sep 17", workouts: ["Stair climber (45 min) or bridge repeats (35 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + fruit (20g)", recovery: "Hydrate" },
+                { day: "Thu, Sep 18", workouts: ["Hotworx Cycle (45 min, 10 lb pack)", "Hot Yoga (30 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon quinoa (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Sep 19", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Sep 20", workouts: ["Hike (7 miles, Turkey Creek, 15 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Protein bar + banana (25g)", recovery: "Stretch" },
+                { day: "Sun, Sep 21", workouts: ["Rock Climbing (90 min, 5 routes)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 5 (Sep 22-28)
+            [
+                { day: "Mon, Sep 22", workouts: ["Hotworx HIIT (45 min, 10 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Sep 23", workouts: ["Rock Climbing (90 min, 5.10a-b, 5 routes, 15 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken salad (40g)", recovery: "Foam roll" },
+                { day: "Wed, Sep 24", workouts: ["Stair climber (45 min) or bridge repeats (40 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + nuts (20g)", recovery: "Hydrate" },
+                { day: "Thu, Sep 25", workouts: ["Hotworx Cycle (45 min, 15 lb pack)", "Hot Yoga (30 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon rice (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Sep 26", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Sep 27", workouts: ["Hike (8-10 miles, Ocala, 20 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch" },
+                { day: "Sun, Sep 28", workouts: ["Rock Climbing (90 min, endurance)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 6 (Sep 29-Oct 5)
+            [
+                { day: "Mon, Sep 29", workouts: ["Hotworx HIIT (50 min, 12 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Sep 30", workouts: ["Rock Climbing (100 min, 5-6 routes, 17 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken stir-fry (40g)", recovery: "Foam roll" },
+                { day: "Wed, Oct 1", workouts: ["Stair climber (50 min) or bridge repeats (45 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + fruit (20g)", recovery: "Hydrate" },
+                { day: "Thu, Oct 2", workouts: ["Hotworx Cycle (50 min, 17 lb pack)", "Hot Yoga (35 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon quinoa (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Oct 3", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Oct 4", workouts: ["Hike (9-11 miles, Sebastian Inlet, 22 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Protein bar + banana (25g)", recovery: "Stretch" },
+                { day: "Sun, Oct 5", workouts: ["Rock Climbing (100 min, endurance)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 7 (Oct 6-12)
+            [
+                { day: "Mon, Oct 6", workouts: ["Hotworx HIIT (55 min, 15 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Oct 7", workouts: ["Rock Climbing (110 min, 6 routes, 20 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken salad (40g)", recovery: "Foam roll" },
+                { day: "Wed, Oct 8", workouts: ["Stair climber (55 min) or bridge repeats (50 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + nuts (20g)", recovery: "Hydrate" },
+                { day: "Thu, Oct 9", workouts: ["Hotworx Cycle (55 min, 20 lb pack)", "Hot Yoga (35 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon rice (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Oct 10", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Oct 11", workouts: ["Hike (10 miles, Ocala, 25 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch" },
+                { day: "Sun, Oct 12", workouts: ["Rock Climbing (110 min, endurance)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 8 (Oct 13-19)
+            [
+                { day: "Mon, Oct 13", workouts: ["Hotworx HIIT (60 min, 15 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Oct 14", workouts: ["Rock Climbing (120 min, 6-7 routes, 20 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken stir-fry (40g)", recovery: "Foam roll" },
+                { day: "Wed, Oct 15", workouts: ["Stair climber (60 min) or bridge repeats (50 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + fruit (20g)", recovery: "Hydrate" },
+                { day: "Thu, Oct 16", workouts: ["Hotworx Cycle (60 min, 20 lb pack)", "Hot Yoga (40 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon quinoa (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Oct 17", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Oct 18", workouts: ["Hike (10-12 miles, Turkey Creek, 25 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Protein bar + banana (25g)", recovery: "Stretch" },
+                { day: "Sun, Oct 19", workouts: ["Rock Climbing (120 min, endurance)", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 9 (Oct 20-26)
+            [
+                { day: "Mon, Oct 20", workouts: ["Hotworx HIIT (60 min, 20 lb pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Oct 21", workouts: ["Rock Climbing (120 min, 5.10b-c, 25 lb pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken salad (40g)", recovery: "Foam roll" },
+                { day: "Wed, Oct 22", workouts: ["Stair climber (75 min) or bridge repeats (60 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + nuts (20g)", recovery: "Hydrate" },
+                { day: "Thu, Oct 23", workouts: ["Hotworx Cycle (60 min, 25 lb pack)", "Hot Yoga (40 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon rice (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Oct 24", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Oct 25", workouts: ["Hike (12 miles or elevation trip, 30 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch" },
+                { day: "Sun, Oct 26", workouts: ["Rock Climbing (120 min, high volume) or elevation Day 2", "Ankle: Single-leg squats (3x10)"], nutrition: "Eggs (30g)", recovery: "Ice, journal" }
+            ],
+            // Week 10 (Oct 27-Nov 2)
+            [
+                { day: "Mon, Oct 27", workouts: ["Hotworx HIIT (30 min, no pack)", "Ankle: Dorsiflexion/inversion (3x15/side)"], nutrition: "Oatmeal + protein (30g)", recovery: "Stretch" },
+                { day: "Tue, Oct 28", workouts: ["Rock Climbing (60 min, light routes, no pack)", "Ankle: Single-leg stands (3x30 sec)"], nutrition: "Chicken stir-fry (40g)", recovery: "Foam roll" },
+                { day: "Wed, Oct 29", workouts: ["Stair climber (30 min) or bridge repeats (20 min)", "Ankle: Calf raises (3x15)"], nutrition: "Yogurt + fruit (20g)", recovery: "Hydrate" },
+                { day: "Thu, Oct 30", workouts: ["Hotworx Cycle (30 min)", "Hot Yoga (30 min)", "Ankle: Heel/toe raises (3x15)"], nutrition: "Salmon quinoa (35g)", recovery: "Yoga focus" },
+                { day: "Fri, Oct 31", workouts: ["Rest"], nutrition: "Shake (25g)", recovery: "Rest" },
+                { day: "Sat, Nov 1", workouts: ["Light hike (6 miles, 15 lb pack)", "Ankle: Eversion (3x15)"], nutrition: "Turkey sandwich (30g)", recovery: "Stretch" },
+                { day: "Sun, Nov 2", workouts: ["Rest or Hotworx yoga (30 min)"], nutrition: "Eggs (30g)", recovery: "Final gear check" }
+            ]
+        ];
+
+        const App = () => {
+            const [currentWeek, setCurrentWeek] = useState(0);
+            const [progress, setProgress] = useState(() => {
+                // Load progress from localStorage or initialize empty
+                const saved = localStorage.getItem('fuegoTrainingProgress');
+                return saved ? JSON.parse(saved) : trainingPlan.map(week => week.map(() => ({ completed: [], notes: '' })));
+            });
+
+            // Save progress to localStorage whenever it changes
+            useEffect(() => {
+                localStorage.setItem('fuegoTrainingProgress', JSON.stringify(progress));
+            }, [progress]);
+
+            const handleComplete = (weekIndex, dayIndex, workoutIndex) => {
+                const newProgress = [...progress];
+                const dayProgress = { ...newProgress[weekIndex][dayIndex] };
+                if (!dayProgress.completed.includes(workoutIndex)) {
+                    dayProgress.completed.push(workoutIndex);
+                } else {
+                    dayProgress.completed = dayProgress.completed.filter(i => i !== workoutIndex);
+                }
+                newProgress[weekIndex][dayIndex] = dayProgress;
+                setProgress(newProgress);
+            };
+
+            const handleNotesChange = (weekIndex, dayIndex, notes) => {
+                const newProgress = [...progress];
+                newProgress[weekIndex][dayIndex] = { ...newProgress[weekIndex][dayIndex], notes };
+                setProgress(newProgress);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <h1 className="text-2xl font-bold text-center mb-4">Fuego Hike Training Tracker</h1>
+                    <div className="flex justify-between mb-4">
+                        {trainingPlan.map((week, index) => (
+                            <button
+                                key={index}
+                                className={`px-2 py-1 rounded ${currentWeek === index ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                onClick={() => setCurrentWeek(index)}
+                            >
+                                Week {index + 1}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="space-y-4">
+                        {trainingPlan[currentWeek].map((day, dayIndex) => (
+                            <div key={day.day} className="bg-white p-4 rounded shadow">
+                                <h2 className="text-xl font-semibold mb-2">{day.day}</h2>
+                                <h3 className="font-medium">Workouts & Ankle Exercises:</h3>
+                                <ul className="list-disc pl-5 mb-2">
+                                    {day.workouts.map((workout, workoutIndex) => (
+                                        <li key={workoutIndex} className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={progress[currentWeek][dayIndex].completed.includes(workoutIndex)}
+                                                onChange={() => handleComplete(currentWeek, dayIndex, workoutIndex)}
+                                                className="mr-2"
+                                            />
+                                            <span>{workout}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <h3 className="font-medium">Nutrition:</h3>
+                                <p className="mb-2">{day.nutrition}</p>
+                                <h3 className="font-medium">Recovery:</h3>
+                                <p className="mb-2">{day.recovery}</p>
+                                <h3 className="font-medium">Notes:</h3>
+                                <textarea
+                                    className="w-full p-2 border rounded"
+                                    value={progress[currentWeek][dayIndex].notes}
+                                    onChange={(e) => handleNotesChange(currentWeek, dayIndex, e.target.value)}
+                                    placeholder="Log pack weight, climbing routes, or how you felt..."
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
